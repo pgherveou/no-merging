@@ -1,37 +1,46 @@
-'use strict';
+function removeMergeButtonIfNeeded() {
+    // get merge button
+    const buttonMerge = document.querySelector(".btn-group-merge");
+    if (!(buttonMerge && buttonMerge.parentElement)) {
+        console.warn("Could not find merge button");
+        return;
+    }
 
-(function($){
-  var changeMergeButtonState = function() {
-    var $container = $('#js-repo-pjax-container');
-    var $buttonMerge = $container.find('.merge-message button.merge-branch-action');
-    var repoName = $('.url').find('span').text();
-    var disabled = false;
-    var buttonHtml = '';
-    var buttonMessage = '';
+    // get commits Tab
+    const commitTab = document.querySelector("#commits_tab_counter");
+    if (!commitTab) {
+        console.warn("Could not find commits tab counter");
+        return;
+    }
 
-    chrome.runtime.sendMessage({from: 'content', subject: 'localStorage'}, function(response){
-      if (!response) { return; }
-      var localStorage, accountsString, accountsArray;
+    // get url pathname
+    const pathname = window.location.pathname.slice(1).toLowerCase();
 
-      localStorage = response.localStorage;
-      if(localStorage.blacklistedAccounts) {
-        accountsString = localStorage.blacklistedAccounts;
-        accountsString = accountsString.replace(/ /g, '');
-        accountsArray = accountsString.split(',');
+    // get list of repos
+    chrome.storage.sync.get("repoList", function(items) {
+        // verify if repo is in our list
+        const isMatching = (items.repoList || "")
+            .split(",")
+            .map(s => s.trim().toLowerCase())
+            .find(repo => pathname.startsWith(repo));
 
-        if(accountsArray.indexOf(repoName) !== -1) {
-          disabled = true;
-          buttonMessage =  'no merging!!';
-
-          buttonHtml = '<span class="octicon octicon-git-merge"></span> ' +  buttonMessage;
-
-          $buttonMerge.attr('disabled', disabled);
-          $buttonMerge.html(buttonHtml);
+        if (!isMatching) {
+            console.debug(`Repo ${pathname} does not match saved list ${items.repoList}`);
         }
-      }
-      });
-  };
 
-  changeMergeButtonState();
-  setInterval(changeMergeButtonState, 10000);
-})(jQuery);
+        const commitsCount = Number.parseInt(commitTab.innerText);
+        if (Number.isNaN(commitsCount)) {
+            console.warn(`Could not parse commits count ${commitTab.innerText}`);
+            return;
+        }
+
+        console.debug(`Commits count is ${commitsCount}`);
+
+        if (commitsCount > 1) {
+            buttonMerge.parentElement.innerHTML = "<strong>Squash commits to enable merge button</strong>";
+        }
+    });
+}
+
+removeMergeButtonIfNeeded();
+chrome.runtime.onMessage.addListener(removeMergeButtonIfNeeded);

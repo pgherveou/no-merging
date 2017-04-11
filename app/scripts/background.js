@@ -1,11 +1,11 @@
-'use strict';
-
-chrome.runtime.onInstalled.addListener(function (details) {
-  console.log('previousVersion', details.previousVersion);
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (changeInfo.status === "complete") {
+        console.debug(`Send refresh to ${tabId}`);
+        chrome.tabs.sendMessage(tabId, "refresh");
+    }
 });
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
-  if (request.subject === 'localStorage') {
-    sendResponse({localStorage: localStorage});
-  }
+chrome.webNavigation.onHistoryStateUpdated.addListener(function(details) {
+    console.debug('Load contentscript', details);
+    chrome.tabs.executeScript(null, { file: "scripts/contentscript.js" });
 });

@@ -1,23 +1,21 @@
 <!doctype html>
 <html>
     <head>
-        <link href="styles/options.css" rel="stylesheet">
-        <script src="lib/jquery.min.js"></script>
-        <script src="scripts/options.js"></script>
+        <script async src="scripts/options.js"></script>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1 class="title">No Merging!!</h1>
+          <h1 class="title">Squash first!</h1>
         </div>
         <div class="content">
           <form action="" class="options">
             <div class="option">
-              <label for="blacklisted_accounts">Blacklisted accounts. (Comma-separted list of github accounts to disable the merge button.)</label><br>
-              <input type="text" id="blacklisted_accounts" name="blacklisted_accounts" placeholder="philosophie" /><br />
+              <label for="repoList">Ensure everything is squashed for the following list of Github repositories. (Comma-separted list of github repo)</label><br>
+              <input type="text" id="repoList" name="repoList" /><br />
             </div>
             <div class="buttons">
-              <button id="save_btn" class="button">Save</button>
+              <button id="save" class="button">Save</button>
             </div>
           </form>
         </div>

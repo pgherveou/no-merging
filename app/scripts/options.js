@@ -1,14 +1,14 @@
-'use strict';
+const repoList = document.querySelector("#repoList");
+const saveButton = document.querySelector("#save");
+repoList.value = localStorage.repoList || "";
 
-(function($){
-  $(function(){
-    $('#blacklisted_accounts').val(localStorage.blacklistedAccounts);
+chrome.storage.sync.get("repoList", items => {
+    repoList.value = items.repoList || "";
+});
 
-    $('#save_btn').closest('form').submit(function(e) {
-      e.preventDefault();
-      localStorage.blacklistedAccounts = $('#blacklisted_accounts').val();
-
-      window.alert('The options have been saved!');
+saveButton.addEventListener("click", e => {
+    e.preventDefault();
+    chrome.storage.sync.set({ repoList: repoList.value }, () => {
+        window.alert("The options have been saved!");
     });
-  });
-})(jQuery);
+});
